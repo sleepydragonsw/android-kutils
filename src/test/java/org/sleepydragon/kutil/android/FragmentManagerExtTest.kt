@@ -15,13 +15,16 @@
  */
 package org.sleepydragon.kutil.android
 
+import android.annotation.SuppressLint
 import android.app.Fragment
 import android.app.FragmentManager
+import android.app.FragmentTransaction
 import org.junit.Assert.assertSame
 import org.junit.Test
 import org.mockito.Mockito
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.fail
 
 class FragmentManagerExtTest {
 
@@ -92,6 +95,120 @@ class FragmentManagerExtTest {
             val fragment = FoodFragment()
             Mockito.`when`(fm.findFragmentByTag(tag)).thenReturn(fragment)
             val exception = assertFailsWith<FragmentCastException> { fm.findFragmentByTagOrThrow<AnimalFragment>(tag) }
+            assertEquals("fragment with tag $tag was found, but was an instance of ${fragment::class} "
+                    + "when expecting an instance of ${AnimalFragment::class}", exception.message)
+        }
+    }
+
+    @SuppressLint("CommitTransaction")
+    @Test
+    fun test_findFragmentByIdOrAdd() {
+        class FoodFragment : Fragment()
+        class AnimalFragment : Fragment()
+
+        val id = 5
+
+        run {
+            val fm = Mockito.mock(FragmentManager::class.java)
+            val fragment = FoodFragment()
+            Mockito.`when`(fm.findFragmentById(id)).thenReturn(fragment)
+            assertSame(fragment, fm.findFragmentByIdOrAdd<FoodFragment>(id) { fail("should not be executed") })
+        }
+        run {
+            val fm = Mockito.mock(FragmentManager::class.java)
+            val ft = Mockito.mock(FragmentTransaction::class.java)
+            val fragment = FoodFragment()
+            Mockito.`when`(fm.findFragmentById(id)).thenReturn(null)
+            Mockito.`when`(fm.beginTransaction()).thenReturn(ft)
+            Mockito.`when`(ft.add(id, fragment)).thenReturn(ft)
+            assertSame(fragment, fm.findFragmentByIdOrAdd<FoodFragment>(id) { fragment })
+            Mockito.verify(fm).beginTransaction()
+            Mockito.verify(ft).add(id, fragment)
+            Mockito.verify(ft).commit()
+        }
+        run {
+            val fm = Mockito.mock(FragmentManager::class.java)
+            val fragment = FoodFragment()
+            Mockito.`when`(fm.findFragmentById(id)).thenReturn(fragment)
+            val exception = assertFailsWith<FragmentCastException> {
+                fm.findFragmentByIdOrAdd<AnimalFragment>(id) { fail("should not be executed") }
+            }
+            assertEquals("fragment with ID $id was found, but was an instance of ${fragment::class} "
+                    + "when expecting an instance of ${AnimalFragment::class}", exception.message)
+        }
+    }
+
+    @SuppressLint("CommitTransaction")
+    @Test
+    fun test_findFragmentByIdOrReplace() {
+        class FoodFragment : Fragment()
+        class AnimalFragment : Fragment()
+
+        val id = 5
+
+        run {
+            val fm = Mockito.mock(FragmentManager::class.java)
+            val fragment = FoodFragment()
+            Mockito.`when`(fm.findFragmentById(id)).thenReturn(fragment)
+            assertSame(fragment, fm.findFragmentByIdOrReplace<FoodFragment>(id) { fail("should not be executed") })
+        }
+        run {
+            val fm = Mockito.mock(FragmentManager::class.java)
+            val ft = Mockito.mock(FragmentTransaction::class.java)
+            val fragment = FoodFragment()
+            Mockito.`when`(fm.findFragmentById(id)).thenReturn(null)
+            Mockito.`when`(fm.beginTransaction()).thenReturn(ft)
+            Mockito.`when`(ft.replace(id, fragment)).thenReturn(ft)
+            assertSame(fragment, fm.findFragmentByIdOrReplace<FoodFragment>(id) { fragment })
+            Mockito.verify(fm).beginTransaction()
+            Mockito.verify(ft).replace(id, fragment)
+            Mockito.verify(ft).commit()
+        }
+        run {
+            val fm = Mockito.mock(FragmentManager::class.java)
+            val fragment = FoodFragment()
+            Mockito.`when`(fm.findFragmentById(id)).thenReturn(fragment)
+            val exception = assertFailsWith<FragmentCastException> {
+                fm.findFragmentByIdOrReplace<AnimalFragment>(id) { fail("should not be executed") }
+            }
+            assertEquals("fragment with ID $id was found, but was an instance of ${fragment::class} "
+                    + "when expecting an instance of ${AnimalFragment::class}", exception.message)
+        }
+    }
+
+    @SuppressLint("CommitTransaction")
+    @Test
+    fun test_findFragmentByTagOrAdd() {
+        class FoodFragment : Fragment()
+        class AnimalFragment : Fragment()
+
+        val tag = "tag"
+
+        run {
+            val fm = Mockito.mock(FragmentManager::class.java)
+            val fragment = FoodFragment()
+            Mockito.`when`(fm.findFragmentByTag(tag)).thenReturn(fragment)
+            assertSame(fragment, fm.findFragmentByTagOrAdd<FoodFragment>(tag) { fail("should not be executed") })
+        }
+        run {
+            val fm = Mockito.mock(FragmentManager::class.java)
+            val ft = Mockito.mock(FragmentTransaction::class.java)
+            val fragment = FoodFragment()
+            Mockito.`when`(fm.findFragmentByTag(tag)).thenReturn(null)
+            Mockito.`when`(fm.beginTransaction()).thenReturn(ft)
+            Mockito.`when`(ft.add(fragment, tag)).thenReturn(ft)
+            assertSame(fragment, fm.findFragmentByTagOrAdd<FoodFragment>(tag) { fragment })
+            Mockito.verify(fm).beginTransaction()
+            Mockito.verify(ft).add(fragment, tag)
+            Mockito.verify(ft).commit()
+        }
+        run {
+            val fm = Mockito.mock(FragmentManager::class.java)
+            val fragment = FoodFragment()
+            Mockito.`when`(fm.findFragmentByTag(tag)).thenReturn(fragment)
+            val exception = assertFailsWith<FragmentCastException> {
+                fm.findFragmentByTagOrAdd<AnimalFragment>(tag) { fail("should not be executed") }
+            }
             assertEquals("fragment with tag $tag was found, but was an instance of ${fragment::class} "
                     + "when expecting an instance of ${AnimalFragment::class}", exception.message)
         }
