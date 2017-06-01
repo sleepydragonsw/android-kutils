@@ -4,11 +4,13 @@ task wrapper(type: Wrapper) {
 }
 
 buildscript {
+    ext.kotlin_version = "1.1.2-3"
     repositories {
         jcenter()
     }
     dependencies {
         classpath "com.android.tools.build:gradle:2.3.2"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
@@ -17,6 +19,7 @@ repositories {
 }
 
 apply plugin: "com.android.library"
+apply plugin: "kotlin-android"
 
 android {
     compileSdkVersion 25
@@ -35,4 +38,8 @@ android {
     dexOptions {
         javaMaxHeapSize "3g"
     }
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
