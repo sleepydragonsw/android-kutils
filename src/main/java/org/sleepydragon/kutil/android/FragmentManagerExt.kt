@@ -39,3 +39,25 @@ inline fun <reified T : Fragment> FragmentManager.findFragmentByIdOrThrow(id: In
                 + "of ${fragment::class} when expecting an instance of ${T::class}")
     }
 }
+
+/**
+ * Find a fragment by its tag and throw an exception if it is not found or was found but is not an
+ * instance of the expected type.
+ * @param tag the tag of the fragment to find.
+ * @return the fragment that was found.
+ * @throws FragmentNotFoundException if no fragment was found with the given tag.
+ * @throws FragmentCastException if a fragment was found with the given tag but was not an instance
+ * of the expected type.
+ * @see FragmentManager.findFragmentByTag
+ */
+inline fun <reified T : Fragment> FragmentManager.findFragmentByTagOrThrow(tag: String): T {
+    val fragment = findFragmentByTag(tag)
+    if (fragment === null) {
+        throw FragmentNotFoundException("fragment with tag $tag not found")
+    } else if (fragment is T) {
+        return fragment
+    } else {
+        throw FragmentCastException("fragment with tag $tag was found, but was an instance "
+                + "of ${fragment::class} when expecting an instance of ${T::class}")
+    }
+}

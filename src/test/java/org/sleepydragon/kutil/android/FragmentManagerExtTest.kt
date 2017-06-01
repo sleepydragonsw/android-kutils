@@ -61,4 +61,40 @@ class FragmentManagerExtTest {
         }
     }
 
+    @Test
+    fun test_findFragmentByTagOrThrow() {
+        class FoodFragment : Fragment()
+        open class AnimalFragment : Fragment()
+        class DogFragment : AnimalFragment()
+
+        val tag = "tag"
+
+        run {
+            val fm = Mockito.mock(FragmentManager::class.java)
+            val fragment = DogFragment()
+            Mockito.`when`(fm.findFragmentByTag(tag)).thenReturn(fragment)
+            assertSame(fragment, fm.findFragmentByTagOrThrow<DogFragment>(tag))
+        }
+        run {
+            val fm = Mockito.mock(FragmentManager::class.java)
+            val fragment = DogFragment()
+            Mockito.`when`(fm.findFragmentByTag(tag)).thenReturn(fragment)
+            assertSame(fragment, fm.findFragmentByTagOrThrow<AnimalFragment>(tag))
+        }
+        run {
+            val fm = Mockito.mock(FragmentManager::class.java)
+            Mockito.`when`(fm.findFragmentByTag(tag)).thenReturn(null)
+            val exception = assertFailsWith<FragmentNotFoundException> { fm.findFragmentByTagOrThrow<Fragment>(tag) }
+            assertEquals("fragment with tag $tag not found", exception.message)
+        }
+        run {
+            val fm = Mockito.mock(FragmentManager::class.java)
+            val fragment = FoodFragment()
+            Mockito.`when`(fm.findFragmentByTag(tag)).thenReturn(fragment)
+            val exception = assertFailsWith<FragmentCastException> { fm.findFragmentByTagOrThrow<AnimalFragment>(tag) }
+            assertEquals("fragment with tag $tag was found, but was an instance of ${fragment::class} "
+                    + "when expecting an instance of ${AnimalFragment::class}", exception.message)
+        }
+    }
+
 }
