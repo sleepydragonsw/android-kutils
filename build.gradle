@@ -26,7 +26,7 @@ apply plugin: "org.jetbrains.dokka"
 apply plugin: "com.github.dcendents.android-maven"
 
 group = "org.sleepydragon"
-version = "1.0.0"
+version = "1.0.1-dev"
 
 android {
     compileSdkVersion 25
@@ -35,7 +35,7 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 25
-        versionCode 1
+        versionCode 2
         versionName version
     }
 
