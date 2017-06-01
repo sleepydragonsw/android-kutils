@@ -11,6 +11,7 @@ buildscript {
     dependencies {
         classpath "com.android.tools.build:gradle:2.3.2"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:0.9.14"
     }
 }
 
@@ -20,6 +21,7 @@ repositories {
 
 apply plugin: "com.android.library"
 apply plugin: "kotlin-android"
+apply plugin: "org.jetbrains.dokka"
 
 android {
     compileSdkVersion 25
@@ -46,4 +48,16 @@ dependencies {
     testCompile "junit:junit:4.12"
     testCompile "org.mockito:mockito-core:2.8.9"
     testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
+}
+
+dokka {
+    outputFormat = "html"
+    outputDirectory = "$buildDir/javadoc"
+    sourceDirs = files("src/main/java")
+
+    linkMapping {
+        dir = file("src/main/java").absolutePath
+        url = "https://github.com/sleepydragonsw/android-kutils/blob/master/src/main/java"
+        suffix = "#L"
+    }
 }
